@@ -1,0 +1,53 @@
+\documentclass[a4paper,10pt]{scrartcl}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{eurosym}
+
+\begin{document}
+
+\begin{titlepage}
+       
+\begin{center}
+
+\textsc{\Large Freie Universität Berlin}\\
+{\large Fachbereich Mathematik und Informatik\\Institut für Informatik, Studiengang Informatik BSc}
+
+\vspace*{1.2cm}
+
+% Title
+{ \huge \bfseries Praktikumsbericht}\\[0.7cm]
+{\large
+von\\[0.2cm]
+Malte Rohde\\
+Matrikelnr.: 4287463\\
+malte.rohde@inf.fu-berlin.de
+\\[1.0cm]
+über ein Praktikum bei\\[0.2cm]
+Siemens AG, Elsenstraße 87-96, 12435 Berlin\\
+im Zeitraum vom 14.04.2009 bis 29.01.2010
+}
+\vfill
+
+% Bottom of the page
+{\large \today}
+
+\end{center}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+
+\newpage
+
+\input{kapitel/einleitung}
+\input{kapitel/praktikumsstelle}
+\input{kapitel/aufgaben}
+\input{kapitel/fazit}
+
+\bibliographystyle{abbrv}
+\bibliography{bericht}
+
+\end{document}
