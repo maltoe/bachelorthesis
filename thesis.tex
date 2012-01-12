@@ -1,53 +1,91 @@
-\documentclass[a4paper,10pt]{scrartcl}
+\documentclass[a4paper,10pt]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage[ngerman]{babel}
+\usepackage[english]{babel}
+\usepackage{ae}
+\usepackage[a4paper]{geometry}
 \usepackage{amsmath}
 \usepackage{url}
-\usepackage{eurosym}
+
+\usepackage{fancyhdr}
+\usepackage{fancyref}
+\usepackage{listings}
+\usepackage{footmisc}
+\usepackage{graphicx} 
+\usepackage{hyperref}
+
+
+% Header and Footer Style
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[R]{\slshape Malte Rohde}
+\fancyhead[L]{\slshape\nouppercase{\rightmark}}
+\fancyfoot{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}} 
+
+% No identation
+\setlength\headheight{15pt}
+\setlength\parindent{0pt} 
+
+% custom commands
+\newcommand\parbig{\par\bigskip}
+\newcommand\parmed{\par\medskip}
+\newcommand{\mailto}[1]{\href{mailto:#1}{#1}}
+
+% Titel and author 
+\title{\includegraphics[width=1.0\textwidth]{img/fulogo}\\[1.5cm]
+{\normalsize Bachelor thesis at the Computer Science Institute of the Freie Universität Berlin\\ Computer Systems \& Telematics workgroup}\\[6ex] {\Huge Performance optimization of real-world algorithms on modern processor architectures}\\[6ex]}
+
+\author{Malte Rohde\\
+{\normalsize Immatriculation Number: 4287463 }\\
+{\normalsize \mailto{malte.rohde@inf.fu-berlin.de}}\\\\
+{\normalsize \textbf{Supervised by}: Prof. Dr. Marcel Kyas and Dipl.-Inform. Heiko Will}}
+
+\date{\vspace*{3.5cm} \today{}}
+
 
 \begin{document}
 
 \begin{titlepage}
-       
-\begin{center}
 
-\textsc{\Large Freie Universität Berlin}\\
-{\large Fachbereich Mathematik und Informatik\\Institut für Informatik, Studiengang Informatik BSc}
+\pagenumbering{alph}
+\maketitle
+\thispagestyle{empty}
 
-\vspace*{1.2cm}
+\vfill{}
 
-% Title
-{ \huge \bfseries Praktikumsbericht}\\[0.7cm]
-{\large
-von\\[0.2cm]
-Malte Rohde\\
-Matrikelnr.: 4287463\\
-malte.rohde@inf.fu-berlin.de
-\\[1.0cm]
-über ein Praktikum bei\\[0.2cm]
-Siemens AG, Elsenstraße 87-96, 12435 Berlin\\
-im Zeitraum vom 14.04.2009 bis 29.01.2010
-}
-\vfill
-
-% Bottom of the page
-{\large \today}
-
-\end{center}
 \end{titlepage}
 
-\newpage
+\pagestyle{empty}
+\clearpage\pagenumbering{roman}
+\include{parts/abstract}
+\include{parts/declaration}
+
 \tableofcontents
+\clearpage\pagenumbering{arabic}
+\pagestyle{fancy}
+\setcounter{page}{1}
 
-\newpage
+\include{parts/01_introduction}      
+%\include{2_fundamentals}      
+%\include{3_main}  
+%\include{4_implementation}
+%\include{evaluation}
+%\include{4_conclusion}
+%\include{5_appendix}      
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{section}{References}
+%\bibliographystyle{alpha}	% abbrv
+%\bibliography{thesis}
 
-\input{kapitel/einleitung}
-\input{kapitel/praktikumsstelle}
-\input{kapitel/aufgaben}
-\input{kapitel/fazit}
-
-\bibliographystyle{abbrv}
-\bibliography{bericht}
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+\lstlistoflistings
 
 \end{document}
