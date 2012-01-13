@@ -6,7 +6,7 @@ all: clean compile removetemporaries
 
 compile:
 	latex ${LATEX_OPTS} thesis.tex
-#	bibtex8 thesis
+	bibtex8 thesis
 	latex ${LATEX_OPTS} thesis.tex
 	latex ${LATEX_OPTS} thesis.tex
 
