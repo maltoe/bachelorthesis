@@ -68,18 +68,15 @@
 \pagestyle{fancy}
 \setcounter{page}{1}
 
-\include{parts/01_introduction}      
-%\include{2_fundamentals}      
-%\include{3_main}  
-%\include{4_implementation}
-%\include{evaluation}
-%\include{4_conclusion}
-%\include{5_appendix}      
+\input{parts/01_introduction} 
+\input{parts/02_related_work}
 \cleardoublepage
 \phantomsection
+
+% Bibliography
 \addcontentsline{toc}{section}{References}
-%\bibliographystyle{alpha}	% abbrv
-%\bibliography{thesis}
+\bibliographystyle{alpha}
+\bibliography{thesis}
 
 \clearpage
 \listoffigures
