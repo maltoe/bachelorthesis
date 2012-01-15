@@ -1,0 +1,51 @@
+\section{Notes}
+\begin{verbatim}
+interesting topics:
+
+* benchmarking
+** time measurement (clock_gettime / rdtsc)
+** callgrind
+** Different input values can lead to different perfomance!
+	 --> maybe define a huge set of test data to calculate average speed up
+
+* intrinsics
+** vs. inline asm
+
+* gcc
+** compiler flags
+*** optimization level
+** what happens to intrinsics?
+** a little asm
+*** rip relative addressing
+** auto vectorization
+** unlikely()
+
+* RCS: Use branches a lot.
+
+* icc (?)
+* Intel Software Development Emulator (?)
+
+* manual vectorization
+** 'streamlining' techniques
+*** shuffle (?)
+*** loop unrolling
+*** data dependence?
+** what to do with conditionals
+*** and(one, cmp(x,y)) / blend
+*** "branch prediction vs. blending" (?)
+** aligned storage!
+** streaming store instructions: movntps (?)
+*** (Bypasses cache for storing registers to memory or for loading
+    memory to registers. Useful for once-referenced, rarely used
+    again data.)
+** instruction prefetching wrt SSE
+*** unnecessary on >=P4?
+** instruction pairing
+** how to avoid cache contention
+** locality of reference? 
+** maximize register usage (?)
+
+* focus: new features of SSE4.x, AVX
+** blend, blendv, test
+** insert, extract
+\end{verbatim}
