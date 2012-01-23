@@ -36,14 +36,16 @@
 
 % Titel and author 
 \title{\includegraphics[width=1.0\textwidth]{img/fulogo}\\[1.5cm]
-{\normalsize Bachelor thesis at the Computer Science Institute of the Freie Universität Berlin\\ Computer Systems \& Telematics workgroup}\\[6ex] {\Huge Performance optimization of real-world algorithms on modern processor architectures}\\[6ex]}
+{\normalsize Bachelor thesis at the Computer Science Institute of the Freie Universität Berlin\\ Computer Systems \& Telematics workgroup}\\[6ex] {\Huge Performance optimization of real-world algorithms on modern processor architectures\\[1cm]- DRAFT -}\\[6ex]}
 
 \author{Malte Rohde\\
 {\normalsize Immatriculation Number: 4287463 }\\
 {\normalsize \mailto{malte.rohde@inf.fu-berlin.de}}\\\\
 {\normalsize \textbf{Supervised by}: Prof. Dr. Marcel Kyas and Dipl.-Inform. Heiko Will}}
 
-\date{\vspace*{3.5cm} \today{}}
+% Final version:
+%\date{\vspace*{3.5cm} \today{}}
+\date{\vspace*{1.0cm} \today{}}
 
 
 \begin{document}
@@ -67,9 +69,12 @@
 \clearpage\pagenumbering{arabic}
 \pagestyle{fancy}
 \setcounter{page}{1}
-
+\input{parts/00_notes}
 \input{parts/01_introduction}
-\input{parts/02_notes}
+\input{parts/02_basics}
+\input{parts/03_optimization}
+\input{parts/04_evaluation}
+\input{parts/05_conclusion}
 \cleardoublepage
 \phantomsection
 
@@ -80,9 +85,12 @@
 
 \clearpage
 \listoffigures
+%\addcontentsline{toc}{section}{List of Figures}
 \clearpage
 \listoftables
+%\addcontentsline{toc}{section}{List of Tables}
 \clearpage
 \lstlistoflistings
+%\addcontentsline{toc}{section}{List of Listings}
 
 \end{document}

@@ -1,0 +1,36 @@
+\section{Optimization theory}
+\subsection{Basic principles}
+\begin{itemize}
+\item avoid premature optimization
+\item memory
+\item ... blabla refer to Fog
+\item let the compiler do the work
+\item when to optimize / when not to optimize
+\item \emph{cite a lot}
+\end{itemize}
+\subsection{Parallelization using Streaming SIMD Extensions}
+\begin{itemize}
+\item introduction to SSE/AVX, brief history
+\end{itemize}
+\subsubsection{General techniques for using SSE}
+\begin{itemize}
+\item compiler intrinsics
+\item loop unrolling
+\item aligned vs. unaligned data storage
+\item dealing with conditional branches -> branch prediction vs. blending?
+\item exploiting NaN values?
+\item prefetching \& non-temporal storing -> \texttt{movntps}
+\end{itemize}
+\subsubsection{New features of SSE 4.x and AVX}
+\begin{itemize}
+\item blendv instead of \texttt{pand}, \texttt{pandn}, \texttt{por}
+\item ptest
+\item difficulties when dealing with SSE + AVX?
+\end{itemize}
+\lstset{language=XML,}
+\lstset{language=[x86masm]Assembler, caption={A first listing},label=lst1}
+\begin{lstlisting}
+pand   xmm1, xmm0
+pandn  xmm0, xmm2
+por    xmm0, xmm1
+\end{lstlisting}
