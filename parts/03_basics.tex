@@ -1,7 +1,6 @@
 \section{Optimization theory}
 \label{Optimization_theory}
-The following section describes the basic theory of software optimization. First, I will summarize guidelines that should always be followed when one has to optimize a piece of software. Naturally, 
-these will only be a selection of the many advices provided by relevant manuals. Then, I will go into detail when explaining concepts of using the SSE instruction set. While this section is focussed on C/C++ code, most advices should be valid for other programming languages as well. All code snippets given are simple examples and are not necessarily based on my work on the LS$^{2}$ simulation engine.
+The following section describes the basic theory of software optimization. First, I will summarize guidelines that should always be followed when one has to optimize a piece of software. Naturally, these will only be a selection of the many advices provided by relevant manuals. Then, I will go into detail when explaining concepts of using the SSE instruction set. While this section is focussed on C/C++ code, most advices should be valid for other programming languages as well. All code snippets given are simple examples and are not necessarily based on my work on the LS$^{2}$ simulation engine.
 
 \subsection{Basic principles}
 The first lesson one learns when looking into software optimization is to \emph{avoid premature optimization}. This advice is based on a statement given by Donald E. Knuth in~\cite{knuth1974}, "We \emph{should} forget about small efficiencies, say about 97 \% of the time: premature optimization is the root of all evil". Knuth continues to say that in the remaining (critical) 3 \% of the code the programmer should look carefully for optimization opportunities, "but only \emph{after} that code has been identified". The common notion of Knuth's words is that, while writing a piece of software, the programmer should not care about performance until he can guarantee the code's correctness. Afterwards, he should find the most critical parts in the code and concentrate optimization efforts on those particular parts. This opinion implies two valid points: First, optimized code will always reduce readability and increase complexity. This may lead to errors and code that is hard to maintain. Second, most of the time optimization is only worth its costs in the most time-critical parts of a software. However, Knuth supposedly did not mean that the programmer should not think about performance at all. In fact, the following simple rules can be kept in mind along the way.
@@ -9,7 +8,7 @@ The first lesson one learns when looking into software optimization is to \emph{
 \subsubsection{Memory performance}
 \paragraph{Stack vs. heap storage of variables.} The memory of an application is divided into two major parts: The stack resides at the beginning of the memory block and is used in a last-in-first-out fashion. When an application allocates a variable on the stack (i.e., all local variables in C), it simply needs to move up the \emph{stack pointer}. The heap usually resides at the end of the memory, growing down. It is used for dynamic memory allocation. When the application wants to allocate memory on the heap, for example because it wants to allocate a dynamically sized array, it needs to ask a heap manager for it (\texttt{malloc} in C). This manager would then look for a storage position that provided sufficient free space for the variable. Managing the heap is much more expensive compared to the simple stack approach, yet it may sometimes be impossible to store all variables on the stack. For instance, in some older programming languages such as C89, it was not allowed to allocate memory on the stack when the size was not known at compile time. Apart from that, the stack is much smaller than the heap and some objects or large arrays may exceed its space limits. However, whenever possible, frequently used variables should be stored on the stack~\cite[p. 90]{fog2011optimizing}.
 \paragraph{Cache misses.} Modern processor architectures feature a multi-level hierarchy of caches which is used to speed up repeated accesses to data values. The Level 1 cache, being the (physically) closest cache available to the CPU, provides the fastest access time. With every succeeding cache (L2/L3), both access times and cache size increase. For simplicity, I will assume a model of only one cache in the following. Whenever an application uses or manipulates a variable, the CPU checks whether the memory segment where it resides is already loaded into the cache. It if is not, a cache miss occurs, resulting in the segment being fetched from main memory. As the latter is a very time-consuming operation, the programmer's goal is to reduce the number of cache misses his code produces. The main motivation for today's cache architectures is so-called \emph{data locality}. Technically, data locality refers to probability observations about data access patterns, that are commonly divided into two types: First, temporal locality means that data that has been accessed recently is very likely to be accessed again soon. Second, spatial locality means that data that is spatially close to recently accessed data in the memory is likely to be accessed soon, too. Therefore it makes sense to not only cache a single variable that was recently used, but the whole memory range where this variable resided. Now, to exploit the CPU's caching mechanism, the programmer should adapt his access patterns to these probability estimations. As Agner Fog puts it, "Variables that are used together should be stored together"~\cite[p. 88]{fog2011optimizing}. This boils down to simple strategies such as always allocating variables when one needs them. As an often used example for cache-friendly variable access, consider the array manipulation in listing \ref{seq_array_access}.
-\begin{lstlisting}[language=C, caption={Sequential vs. non-sequential array access},label=seq_array_access]
+\begin{code}[caption={Sequential vs. non-sequential array access}, label=seq_array_access]
 int buf[1024 * 1024];
 
 for (int i = 0; i < 1024; i++)
@@ -19,11 +18,30 @@ for (int i = 0; i < 1024; i++)
 for (int i = 0; i < 1024; i++)
   for (int j = 0; j < 1024; j++)
     buf[j * 1024 + i]++;
-\end{lstlisting}
+\end{code}
 Apart from both nested loops doing the same thing, namely incrementing each element in the buffer, the crucial difference between them is the way the array index is calculated. While the first loop walks through the array sequentially with the index always growing by one, the second loop "jumps" through the array in steps of 1024. Obviously, the second approach can lead to a lot more cache misses.
 
 \subsection{Parallelization using Streaming SIMD Extensions}
-Created to meet the growing demand for fast multimedia functions in 1996, Intel's MMX technology was the first widely used instruction set extension to deploy the SIMD architecture to modern desktop processors. It used the lower 64 bit of the 80 bit x87 floating point registers to allow for vectorized calculation of 8 bit to 64 bit integers. Its successor, the Streaming SIMD Extensions (SSE), first added 8 separate 128 wide registers for vector calculations (\texttt{xmm0} to \textt{xmm7}), later complemented by another 8 (\texttt{xmm8} to \textt{xmm15}) by SSE4. Besides, SSE introduced the possibility to process 4 single or 2 double precision floating point values.
+Created to meet the growing demand for fast multimedia functions in 1996, Intel's MMX technology was the first widely used instruction set extension to deploy the SIMD architecture to modern desktop processors. It used the lower 64 bit of the 80 bit x87 floating point registers to allow for vectorized calculation of 8 bit to 64 bit integers. Its successor, the Streaming SIMD Extensions (SSE), first added 8 separate 128 wide registers for vector calculations (\texttt{xmm0} to \texttt{xmm7}), later complemented by another 8 (\texttt{xmm8} to \texttt{xmm15}) by SSE4. Besides, SSE introduced the possibility to process 4 single or 2 double precision floating point values. Listing \ref{sse_intro} shows simplified assembler code that calculates the sum of an array of floats using SSE instructions.
+\begin{assembler}[caption={A first SSE example}, label=sse_intro]
+  ; ecx contains the length of the array
+  ; edx contains the address of the first float
+
+  movaps [edx], xmm0
+LOOP1:
+  add    0x10, edx
+  movaps [edx], xmm1
+  addps  xmm1, xmm0
+
+  dec    ecx
+  jnz    LOOP1
+
+  haddps xmm0, xmm0
+  haddps xmm0, xmm0
+  movss  xmm0, ebx
+
+  ; now ebx contains the sum of the floats
+\end{assembler}
 
 \subsubsection{General techniques for using SSE}
 \begin{itemize}
@@ -34,17 +52,15 @@ Created to meet the growing demand for fast multimedia functions in 1996, Intel'
 \item exploiting NaN values?
 \item prefetching \& non-temporal storing -> \texttt{movntps}
 \end{itemize}
-\subsubsection{New features of SSE 4.x and AVX}
+\subsubsection{New features of SSE4}
 \begin{itemize}
 \item blendv instead of \texttt{pand}, \texttt{pandn}, \texttt{por}
 \item ptest for early exits
 \item difficulties when dealing with SSE + AVX?
 \end{itemize}
-\lstset{language=XML,}
-\lstset{language=[x86masm]Assembler, caption={A first listing},label=lst1}
-\begin{lstlisting}
+\begin{assembler}
 pand   xmm1, xmm0
 pandn  xmm0, xmm2
 por    xmm0, xmm1
-\end{lstlisting}
+\end{assembler}
 \subsection{A word on compiler optimization}

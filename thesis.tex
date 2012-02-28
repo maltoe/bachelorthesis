@@ -34,6 +34,18 @@
 \newcommand\parmed{\par\medskip}
 \newcommand{\mailto}[1]{\href{mailto:#1}{#1}}
 
+% Listing environment for C
+\lstnewenvironment{code}[1][]%
+  {\minipage{\linewidth} 
+   \lstset{language=C,basicstyle=\ttfamily\footnotesize,numbers=left,stepnumber=1,numberstyle=\tiny,#1}}
+  {\endminipage}
+
+% Listing environment for Assembler
+\lstnewenvironment{assembler}[1][]%
+  {\minipage{\linewidth}
+   \lstset{language=[x86masm]Assembler,basicstyle=\ttfamily\footnotesize,numbers=left,stepnumber=1,numberstyle=\tiny,#1}}
+  {\endminipage}
+
 % Titel and author 
 \title{\includegraphics[width=1.0\textwidth]{img/fulogo}\\[1.5cm]
 {\normalsize Bachelor thesis at the Computer Science Institute of the Freie Universität Berlin\\ Computer Systems \& Telematics workgroup}\\[6ex] {\Huge Performance optimization of real-world algorithms on modern processor architectures\\[1cm]- DRAFT -}\\[6ex]}
@@ -46,7 +58,6 @@
 % Final version:
 %\date{\vspace*{3.5cm} \today{}}
 \date{\vspace*{1.0cm} \today{}}
-
 
 \begin{document}
 
