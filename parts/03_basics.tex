@@ -22,19 +22,9 @@ for (int i = 0; i < 1024; i++)
 \end{lstlisting}
 Apart from both nested loops doing the same thing, namely incrementing each element in the buffer, the crucial difference between them is the way the array index is calculated. While the first loop walks through the array sequentially with the index always growing by one, the second loop "jumps" through the array in steps of 1024. Obviously, the second approach can lead to a lot more cache misses.
 
-
-\begin{itemize}
-\item avoid premature optimization
-\item memory
-\item ... blabla refer to Fog
-\item let the compiler do the work
-\item when to optimize / when not to optimize
-\item \emph{cite a lot}
-\end{itemize}
 \subsection{Parallelization using Streaming SIMD Extensions}
-\begin{itemize}
-\item introduction to SSE/AVX, brief history
-\end{itemize}
+Created to meet the growing demand for fast multimedia functions in 1996, Intel's MMX technology was the first widely used instruction set extension to deploy the SIMD architecture to modern desktop processors. It used the lower 64 bit of the 80 bit x87 floating point registers to allow for vectorized calculation of 8 bit to 64 bit integers. Its successor, the Streaming SIMD Extensions (SSE), first added 8 separate 128 wide registers for vector calculations (\texttt{xmm0} to \textt{xmm7}), later complemented by another 8 (\texttt{xmm8} to \textt{xmm15}) by SSE4. Besides, SSE introduced the possibility to process 4 single or 2 double precision floating point values.
+
 \subsubsection{General techniques for using SSE}
 \begin{itemize}
 \item compiler intrinsics
