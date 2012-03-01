@@ -72,16 +72,21 @@ Fortunately, programming with SSE is well supported by modern compilers. Nowaday
   sum = _mm_hadd_ps(sum, sum);
   sum = _mm_hadd_ps(sum, sum);
 
-  // Now sum[0] holds the sum of the floats
+  // now sum[0] holds the sum of the floats
 \end{code}
 
 The GNU compiler collection recently added support for the usual arithmetic operators for vector types, so instead of writing \texttt{sum = \_mm\_add\_ps(sum, add))} we could also write \texttt{sum += add}. This especially helps to keep readability loss to a minimum. The use of intrinsics has several advantages over inline assembler. First, as mentioned before, the vector types can be treated as if they were primitives. For instance, the programmer does not need to care whether they are stored in registers or in memory. The compiler inserts the appropriate \texttt{mov} instructions when they are needed for calculations. This even includes the possibility to create arrays of vector types. Second and even more important, the use of intrinsics leaves some space for compiler optimization. Whether it be register management or the order of instructions, the compiler may always find ways to further optimize the SSE code. In fact, the compiler may choose not to emit a requested instruction at all, if it sees fit. In a blog entry from 2009~\cite{liranuna2009} the author "LiraNuna" compares the optimized assemblies of the three major SSE-aware compilers. Apart from revealing considerable differences between the produced assemblies, it also displays that all of the popular compilers were able to further optimize simple SSE intrinsics. For example, gcc succeeded in optimizing out 5 useless vector-based arithmetic operations (e.g. multiplying by a vector whose elements are all 1). In sum, there are rarely any situations where inline assembler has any advantages over the use of SSE intrinsics.
 
+Not shown in listing \ref{sse_intrinsics_intro} are the preparations needed for the code to be of actual practical use. Obviously, the array sum would not be correct if count was not a multiple of 4, as then the remaining 1, 2, or 3 elements would not take part in the calculation. There are two options suitable for fixing this issue: Either the programmer could add the remaining elements in a scalar loop right after the vectorized loop (with the iterator starting at the last multiple of 4 less than or equal to count), or he could always pad the array to a length dividable by 4. The padding elements would need to be initialized to zero. Either way would impose a substantial processing overhead (mainly caused by the additional loop) that would render the optimization useless for small arrays. Some other peculiarities of SSE programming are described in the following.
+
+\paragraph{Aligned data storage.} Most SSE instructions that operate on either registers or memory locations require those memory locations to be aligned by 16 byte boundaries (in other words, the memory address needs to be dividable by 16). For instance, \texttt{haddps} allows a memory location as source operand, yet will raise a so-called general protection exception when this location is not aligned by 16 bytes, resulting in an application error. For some SSE instructions such as data move instructions (\texttt{movaps}) there exist instruction variants that allow for unaligned addresses (e.g. \texttt{movups}). However, misaligned addresses still cause long delays and thus should be avoided. Shahbahrami et al. discussed the impact of misaligned accesses in~\cite{shahbahrami2006} [muss ich noch lesen und Stoner auch~\cite{stoner2010}]...
+
+
+\paragraph{Dealing with conditional branches.} blbalbla
 
 
 \begin{itemize}
-\item compiler intrinsics
-\item aligned vs. unaligned data storage
+\item aligned vs. unaligned data storage: two ideas: aligned for offset, padding for compound types <-- waste of space, cache?
 \item dealing with conditional branches -> branch prediction vs. blending?
 \item exploiting NaN values?
 \item prefetching \& non-temporal storing -> \texttt{movntps}
