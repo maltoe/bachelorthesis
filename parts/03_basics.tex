@@ -100,79 +100,30 @@ The by far hardest hurdle in SSE programming is the transcription of conditional
 
 If the conditional had an \texttt{else} branch containing a different assignment statement, the SSE code would require two additional bitwise logical operations, namely an \texttt{ANDNOT} for the \texttt{else} assignment and an \texttt{OR} to blend the results of the branches. With SSE4, this triple of bitwise operations has been compacted into a single instruction called \texttt{blendv} (along with other types of blending operations) that merges the bits of two vectors based on a third mask vector. 
 
-In general, performances of vectorized code sections that work around conditionals largely depend on two factors: Probabilities of truth values and the amount of computation done in the related branches. Fow simple branches such as the assignment statement above it is usually true that a vectorized solution will outperform the scalar version as conditional jumps have a significant impact on performance. Whenever a conditional jump appears in a application code, the processor tries to guess what path will be taken and precalculates that branch's results. When the guess turns out to be wrong (\emph{branch misprediction}), the precalculation needs to be discarded and the processor's pipeline needs to be flushed, which can easily stall the processor for a hundred clock cycles. In contrast, vectorized code always evaluates both possible branches and blends the result according to a conditional bitmask, as explained above. As there are no conditional jumps, branch mispredictions become irrelevant. Yet, modern processors feature advanced branch prediction technology and often branch mispredictions get fairly uncommon. In some cases, this may even get to the point where a well predictable condition that determines whether a larger amount of code will be executed or not turns out to be faster than the corresponding vectorized code without condition that will always execute that code. As an extreme example, consider a basic \texttt{if} clause that evaluates to \texttt{true} only once in a thousand runs but then will lead to a considerable portion of code. Here, scalar code may turn out to surpass the performance of its vectorized counterpart. This issue also takes effect in long loops that contain "early out" conditionals (e.g. an early \texttt{if}-\texttt{break} group). If the programmer still decides to vectorize a code section containing conditionals, he has several options how to deal with vector elements for which the conditional evaluated to \texttt{false}:
+In general, performances of vectorized code sections that work around conditionals largely depend on two factors: Probabilities of truth values and the amount of computation done in the related branches. Fow simple branches such as the assignment statement above it is usually true that a vectorized solution will outperform the scalar version as conditional jumps have a significant impact on performance. Whenever a conditional jump appears in application code, the processor tries to guess what path will be taken and precalculates that branch's results. When the guess turns out to be wrong (\emph{branch misprediction}), the precalculation needs to be discarded and the processor's pipeline needs to be flushed, which can easily stall the processor for a hundred clock cycles. In contrast, vectorized code always evaluates both possible branches and blends the result according to a conditional bitmask, as explained above. As there are no conditional jumps, branch mispredictions become irrelevant. Yet, modern processors feature advanced branch prediction technology and often branch mispredictions get fairly uncommon. In some cases, this may even get to the point where a well predictable condition that determines whether a larger amount of code will be executed or not turns out to be faster than the corresponding vectorized code without condition that will always execute that code. As an extreme example, consider a basic \texttt{if} clause that evaluates to \texttt{true} only once in a thousand runs but then will lead to a considerable portion of code. Here, scalar code may turn out to surpass the performance of its vectorized counterpart. This issue also takes effect in long loops that contain "early out" conditionals (e.g. an early \texttt{if}-\texttt{break} group). 
 
-\begin{itemize}
-\item \textbf{Blacklisting}. The straightforward approach is to blacklist vector elements that should not take part in a calculation in a blacklist vector. Calculations that have no outside effects can then be done for the whole vector, while those that have outside effects need to be blended depending on the blacklist or need to be performed during or after the unwrapping of the vectors. It may also be possible to omit the blacklist vector and instead use the \texttt{NaN} value resulting from the comparison in the calculation. Any operation used on a \texttt{NaN} value will always return another \texttt{NaN} value, so the initial \texttt{false} from the comparison will show up at the end of the calculation. However, this may only lead to a small speed up in comparison to an explicit blacklist vector, mostly due to the blacklist having been dropped from the cache.
-\item{Vectorized early out.} SSE4 introduced a new \texttt{ptest} instruction that 
+When dealing with longer code sections guarded by a conditional, the straightforward approach is to blacklist vector elements that should not take part in the calculation in a blacklist vector. Statements that have no outside effects can then be executed for the whole vector, while those that have outside effects need to be blended depending on the blacklist or need to be performed during or after the unwrapping of the vectors. It may also be possible to omit the blacklist vector and instead directly incorporate the \texttt{NaN} value resulting from the comparison into the calculation. Any operation including a \texttt{NaN} value will always return another \texttt{NaN} value, so the initial \texttt{false} from the comparison will show up at the end of the calculation. However, this may only lead to a small speed up in comparison to an explicit blacklist vector, mostly due to the blacklist likely having been dropped from cache. Occasionally it may even be feasible to spare the comparison absolutely, if the succeeding instructions will always lead to zero or infinity values for those vector elements that originally would have been sorted out by the comparison. However, as this is an arithmetic optimization, it might as well have been done in the original scalar code in the first place.
 
+In case a conditional may sometimes evaluate to \texttt{false} for all vector elements, the new SSE4 \texttt{ptest} instruction comes to help. This instruction is especially valuable for the above mentioned case of rarely executed code sections after a conditional that is unlikely to be \texttt{true} at all. \texttt{ptest} is the first SSE instruction to operate on the 128 bit value as a whole, it does a bitwise comparison of two \texttt{xmm} registers and returns a scalar \texttt{true} or \texttt{false}. Additionally, Intel provided some helpful convenience intrinsics that test a vector for "all 1" or "all 0" values which are named \texttt{\_mm\_test\_all\_zeros} and \texttt{\_mm\_test\_all\_ones}. See listing \ref{ptest} for two examples of \texttt{ptest} usage.
 
-Occasionally it may be feasible to omit the blacklisting and  through the exploitation of \texttt{NaN} values.
- Das ist Schwachsinn. Das koennte ich eigentlich immer tun. Warum habe ich ueberhaupt so eine blacklist?
+\begin{code}[caption={Examples of \texttt{ptest} usage},label=ptest]
+// Rarely true condition.
+__m128 cmp = _mm_cmpgt_ps(a, b);
+if(! _mm_test_all_zeros(cmp)) {
+  // Rarely executed code.
+}
 
+// Test whole vectors for equality.
+// Note that the cast intrinsincs do not actually emit an instruction,
+// but instead only statically cast the vector types.
+int equal = _mm_testc_si128(_mm_castps_si128(a), _mm_castps_si128(b));
+\end{code}
 
-\item \textbf{Vectorized early out.}
-\end{itemize}
-
-
-
-
-[... SNIP ...]
-
-In his instruction benchmarks~\cite[p. 44]{fog2011instructiontables} Agner Fog specifies the reciprocal throughput of \texttt{blendv} on the latest Intel "Sandy Bridge" processor architecture as 1, i.e. Intel processors can handle 1 \texttt{blendv} instruction per clock cycle if there are no data dependencies. The latency of \texttt{blendv} is 2, meaning that any succeeding instruction depending on the result of the current \texttt{blendv} instruction has to wait for 2 cycles before it can be processed. The \texttt{andps}, \texttt{andnps}, and \texttt{orps} instructions too have a reciprocal throughput of 1, yet have a lower latency, which is 1 as well. As \texttt{andnps} and \texttt{andps} could be executed in parallel, the complete logic triple takes 2 cycles, which is twice as much as a single \texttt{blendv} instruction. However, when used to vectorize longer sequences of nested conditional statements or \texttt{switch} statements, the higher latency comes into effect and performances of both solutions converge.
-
-Table \ref{blending_table} displays the results of a simple benchmark application which measures the performance of the array sum example using these different blending techniques. Here, test A represents the known example with a single \texttt{if}-\texttt{else} statement, whereas test B contains two additional \texttt{else if} branches, so that a total of 4 different cases can occur. Both tests were run with random values and predictable values, which always triggered one of the cases. For these experiments, I set the compiler optimization to "-O2". The code of this benchmark can be found in Appendix REF. 
-
-\begin{table}[h]
-\begin{center}
-\begin{tabular}{clcc}
-\toprule
-Task & Optimizations & Runtime (s), random & Runtime (s), predictable \\
-\midrule
-A & None & 0.0657 & 0.0658 \\
-& Logical instructions & 0.0318 & 0.0320 \\
-& \texttt{blendv} & 0.0274 & 0.0281 \\
-\addlinespace
-B & None & 0.431 & 0.065 \\
-& Logical instructions & 0.081 & 0.081 \\
-& \texttt{blendv} & 0.065 & 0.066 \\
-& \texttt{blendv}, unrolled, prefetching & 0.061 & 0.061 \\
-\bottomrule
-\end{tabular}
-\caption{Comparison of blending techniques for the array sum example}
-\label{blending_table}
-\end{center}
-\end{table}
-
-Note that these experiments do not measure performances of single instructions such as \texttt{blendv}, because various constant code parts, mainly fetching data from memory and the comparison operation, account for the bulk of the measured runtimes. Still, it shows that \texttt{blendv} is faster than a combination of logical operations and can be used for conditionals consisting of 2 or more branches. Apart from that, another important observation can be made here: There is a prominent discrepancy between random and predictable values processed by the not-optimized complex\footnote{Task B. Why does not happen this in example A?! Reason about this here.} conditional. This is an achievement of the branch prediction built into modern CPUs. It will quickly detect the simple pattern in the input data and always preload the correct instructions into the processor's pipeline. Obviously, as there are no branches in vectorized code, branch prediction can not come into effect. This ..
-Second, there is a noticeable relative difference between the performance gains in example A and B. While the simple exa..
-
-WAS ICH SAGEN WILL:
-- branch prediction: Sorgt dafuer, dass gut vorhersagbare Spruenge nicht genommen werden, ergo ist vektorisierte (unbedingte) Ausfuehrung in manchen Faellen langsamer (z.B. wenn ein sprung nur in 1/1000 faellen genommen wird)
-- lange if/else if/.../else o. switch statements: Spruenge sind ja auch gut. Sowas wird von SSE immer ausgefuehrt, normalerweise nich. vble\_opt hatte das in den Sektoren.
-* der benchmark ist nicht gut. zu geringe komplexitaet, um den vorteil von jumps zu sehen.
-
-- Ausserdem stimmt das anscheinend nicht: Hab einnen anderen test case, wo or(andn, and) und blendv bei einem einfachen if else statement exakt gleich auf sind, obwohl's theoretisch keine dependency chain gibt. Alles kaputt.
-
-[... /SNIP ...]
-
-early outs klar (blacklisting, NaN value detection, early out with ptest)
-
-
+\subsubsection{Optimizing cache access}
 
 \begin{itemize}
 \item prefetching \& non-temporal storing -> \texttt{movntps}
 \end{itemize}
-\subsubsection{New features of SSE4}
-\begin{itemize}
-\item blendv instead of \texttt{pand}, \texttt{pandn}, \texttt{por}
-\item ptest for early exits
-\item difficulties when dealing with SSE + AVX?
-\end{itemize}
-\begin{assembler}
-pand   xmm1, xmm0
-pandn  xmm0, xmm2
-por    xmm0, xmm1
-\end{assembler}
+
 \subsection{A word on compiler optimization}
 Whenever a programmer chooses to optimize a particular piece of code, he has to be aware of the fact that the compiler - when used with the right set of command line arguments - usually may have already created fairly optimal machine code from that code. As a consequence manual code optimization very often will not yield the desired performance improvements but instead may even slow down the application. Besides, manual optimization will always be a time-consuming task and in the end lead to less readable code. Felix von Leitner gave a striking speech~\cite{leitner2009} about compiler optimization at "Linux Kongress" conference 2009 in which he emphasizes that it is far more important to learn how compiler optimization works and how to structure code in a way that supports compiler optimization than to try to manually outperform the compiler. He concludes that only when the performance boost "drastically" outweighs the decrease in readability, manual optimization really is worth the effort. Again, I would like to point out that the value of manual optimization depends on the very situation. Although on a small scale the compiler will most of the time create fast enough code and manual optimization may not improve performance at all, a human programmer may find optimization measures at a larger scale that speed up execution a lot. The same is true for vectorization: Most modern compilers are able to auto-vectorize specific parts of code such as smaller loops without data dependencies. However, compilers are not able to grasp the complexity of longer loops that could be vectorized as well, for example using branch avoidance techniques as described above.
