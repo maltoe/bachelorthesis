@@ -36,10 +36,10 @@ void memset3(float *arr, int length, float value) {
 
 int main() {
     const int CACHE_LINE = 64;
-	int length = CACHE_LINE * 1024 * 1024;
+    int length = CACHE_LINE * 1024 * 1024;
 
     // Allocate 64 MB of memory aligned to a cache line.
-	float *arr;
+    float *arr;
     int res = posix_memalign((void**) &arr, CACHE_LINE, 
                              length * sizeof(float));
     if(res != 0)
@@ -52,7 +52,7 @@ int main() {
     tim("scalar", arr, length, memset1);
     tim("store", arr, length, memset2);
     tim("stream", arr, length, memset3);
-    free(arr);
-        
-	return 0;
+
+    free(arr);    
+    return 0;
 }
