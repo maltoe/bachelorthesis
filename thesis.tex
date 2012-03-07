@@ -5,7 +5,7 @@
 \usepackage{ae}
 \usepackage[a4paper]{geometry}
 \usepackage{amsmath}
-\usepackage{url}
+\usepackage[hyphens]{url}
 
 % package for inline figures not contained in debian
 %\usepackage{floatflt}
@@ -16,8 +16,8 @@
 \usepackage{booktabs}
 \usepackage[perpage]{footmisc}
 \usepackage{graphicx} 
-\usepackage{hyperref}
-
+\usepackage[breaklinks]{hyperref}
+\usepackage[page,titletoc]{appendix}
 
 % Header and Footer Style
 \pagestyle{fancy}
@@ -37,6 +37,9 @@
 \newcommand\parbig{\par\bigskip}
 \newcommand\parmed{\par\medskip}
 \newcommand{\mailto}[1]{\href{mailto:#1}{#1}}
+
+% List of Listings
+\renewcommand*{\lstlistlistingname}{List of Listings}
 
 % Listing environment for C
 \lstnewenvironment{code}[1][]%
@@ -64,6 +67,9 @@
 \date{\vspace*{1.0cm} \today{}}
 
 \begin{document}
+
+% This is for linebreaks in URLs.
+\sloppy
 
 \begin{titlepage}
 
@@ -99,13 +105,18 @@
 \bibliography{thesis}
 
 \clearpage
+
 \listoffigures
-%\addcontentsline{toc}{section}{List of Figures}
-\clearpage
+\addcontentsline{toc}{section}{Lists of Figures, Tables, and Listings}
 \listoftables
-%\addcontentsline{toc}{section}{List of Tables}
-\clearpage
 \lstlistoflistings
-%\addcontentsline{toc}{section}{List of Listings}
+
+% Appendix.
+\clearpage
+\begin{appendices}
+\section{Three \texttt{memset} implementations}
+\label{memset_code}
+\lstinputlisting[language=C,basicstyle=\small]{code/memset.c}
+\end{appendices}
 
 \end{document}
