@@ -32,6 +32,7 @@ void memset3(float *arr, int length, float value) {
     for(int i = 0; i < length; i += 4) {
         _mm_stream_ps(&arr[i], buf);
     }
+    _mm_sfence();
 }
 
 int main() {
