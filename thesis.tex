@@ -55,6 +55,12 @@
    \lstset{language=[x86masm]Assembler,basicstyle=\ttfamily\footnotesize,numbers=left,stepnumber=1,numberstyle=\tiny,#1}}
   {\endminipage}
 
+% Listing environment for bash
+\lstnewenvironment{shell}[1][]%
+  {\minipage{\linewidth}
+   \lstset{language=bash,basicstyle=\ttfamily\footnotesize,#1}}
+  {\endminipage}
+
 % Titel and author 
 \title{\includegraphics[width=1.0\textwidth]{img/fulogo}\\[1.5cm]
 {\normalsize Bachelor thesis at the Computer Science Institute of the Freie Universität Berlin\\ Computer Systems \& Telematics workgroup}\\[6ex] {\Huge Performance optimization of real-world algorithms on modern processor architectures\\[1cm]- DRAFT -}\\[6ex]}
@@ -116,7 +122,7 @@
 \section{Three \texttt{memset} implementations}
 \label{memset_code}
 % TODO hide from list of listings
-\lstinputlisting[language=C,basicstyle=\small]{code/memset.c}
+\lstinputlisting[nolol=true,language=C,basicstyle=\small]{code/memset.c}
 \end{appendices}
 
 \end{document}
