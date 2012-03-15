@@ -36,14 +36,14 @@ As Donald E. Knuth has already stated memorably in 1974, it is a good idea to fi
 \begin{center}
 \includegraphics[width=14cm]{img/kcachegrind}
 \end{center}
-\caption{Screenshot of KCachegrind}
+\caption{KCachegrind displaying branch mispredictions}
 \label{fig:kcachegrind}
 \end{figure}
 
 \subsubsection{Benchmarking optimization efforts}
-After identifying the bottlenecks and applying optimization techniques, the next step is to evaluate their impact on performance. Before and after every smaller step, I used the unix \texttt{time} command to measure performance of the application for a randomly selected set of input values. As can be read on the command's manpage, \texttt{time} measures three different execution times, see listing \ref{time} for an example output. The "user" value indicates the amount of CPU time spent in user-mode, the "sys" value is the amount of CPU time spent in kernel-mode. The "real" value is the real time that has elapsed between start and termination of the application. For threaded applications such as LS$^{2}$, on dual-core systems this should ideally be about half of the combined "user" and "sys" times plus some overhead for context switches. As the "real" time varies with the number of processors available and the number of system-calls contained in LS$^{2}$ is close to zero, the only information that made a difference for my optimization work was the "user" value.
+After having identified the bottlenecks and resolved them with the help of optimization techniques, the next step is to evaluate their impact on performance. Before and after every smaller step, I used the unix \texttt{time} command to measure performance of the application for a randomly selected set of input values. As can be read on the command's manpage, \texttt{time} measures three different execution times, see listing \ref{time} for an example output. The "user" value indicates the amount of CPU time spent in user-mode, the "sys" value is the amount of CPU time spent in kernel-mode. The "real" value is the real time that has elapsed between start and termination of the application. For threaded applications such as LS$^{2}$, on dual-core systems this should ideally be about half of the combined "user" and "sys" times plus some overhead for context switches. As the "real" time varies with the number of processors available and the number of system-calls contained in LS$^{2}$ is close to zero, the only information that made a difference for my optimization work was the "user" value.
 -
-\begin{shell}
+\begin{shell}[caption="Example output of the unix \texttt{time} command",label=time]
 $ time { ./bin/lateration_shooter_sse 100 400 500 200 700 800 ; }
 Average error is 45.252751
 
@@ -52,10 +52,10 @@ user    0m14.916s
 sys     0m0.008s
 \end{shell}
 
-As the performance of the various algorithms in LS$^{2}$ turned out to be highly affected by the positions of the anchors, it was also crucial to evaluate the performance using a larger amount of randomized input data, in order to avoid optimizing the application for a single case. For this time-consuming task I wrote an increasingly useful Python script dubbed \emph{benchlat}, which compiled my various work states, executed them a ĺarger number of times overnight, and after completion sent me an email containing the analyzed results, namely average and variance of the runtimes. Later I added automatic profiling using Cachegrind as well as an option that allowed tracing the performance fluctuation through the development history. Regarding the selection of anchor positions, I decided to mainly choose points close to (distinct) borders of the playing field. This reduces the bias towards small, centered shapes that would arise from a uniform distribution of points and in general can be considered more realistic for localization scenarios [THIS SCREAMS CITATION.]. In order to provide statistically reliable data, benchlat empirically detected the convergence of the runtime average (after an initial threshold of 100 runs), with the convergence criterion defined as, "average has not oscillated more than $\pm0.001$s within the last 10 runs".
+As the performance of the various algorithms in LS$^{2}$ turned out to be highly affected by the positions of the anchors, it was also crucial to evaluate the performance gains using a larger amount of randomized input data, in order to avoid optimizing the application for a single case. For this time-consuming task I wrote an increasingly useful Python script dubbed \emph{benchlat}, which compiled my various work states, executed them a ĺarger number of times overnight, and after completion sent me an email containing the analyzed results, namely average and variance of the runtimes. Later I added automatic profiling using Cachegrind as well as an option that allowed tracing the performance fluctuation through the development history. Regarding the selection of anchor positions, I decided to mainly choose points close to (distinct) borders of the playing field. This reduces the bias towards small, centered shapes that would arise from a uniform distribution of points and in general can be considered more realistic for localization scenarios [THIS SCREAMS CITATION.]. In order to provide statistically reliable data, benchlat empirically detected the convergence of the runtime average (after an initial threshold of 100 runs), with the convergence criterion defined as, "average has not oscillated more than $\pm0.001$s within the last 10 runs". All benchmark results displayed in the following sections have been produced by benchlat.
 
 \subsubsection{Managing various attempts using a version control system}
-When an optimization attempt proved to be the best solution and significantly improved performance, I 
+As mentioned before, optimizing LS$^{2}$ was an unsteady task that was characterized by hours of trial and error. When an optimization proved to be the best solution in the very situation and to measurably improve performance, I integrated it into the sources and moved on to the next chokepoint. These successes were often preceded by a number of less profitable attempts that I wanted to save for possible later reuse. Making heavy use of lightweight branches as provided by most modern version control systems such as Git\footnote{\url{http://git-scm.com/}, last accessed: \today{}} proved highly beneficial for these cases. Using branches, I could temporarily put unpromising changes aside and merge them back in when they again seemed attractive solutions in combination with other work. To illustrate the trial and error process more vividly, figure \ref{fig:branchtree} displays a schematic overview of the development in form of a visualization of the complete Git history. Nodes represent the numerous Git commits, which are linked by arrows indicating an "ancestor-of" relationship. As can be easily seen, the development path was by no means a straightforward one.
 
 \begin{figure}[h]
 \begin{center}
@@ -64,28 +64,11 @@ When an optimization attempt proved to be the best solution and significantly im
 \caption{Visualization of \texttt{git} history}
 \label{fig:branchtree}
 \end{figure}
+\subsection{Algorithm I: aml}
+\subsubsection{Introduction}
 
-\begin{itemize}
-\item simple benchmarking using \texttt{time}
-\item profiling using valgrind, cachegrind.
-\item maybe explain benchlat
-\item difficulties related to benchmarking:
-\begin{itemize}
-\item different input leads to \emph{extremly} fluctuating results; don't optimize for a single case!
-\item random input coordinates; uniform distribution
-\end{itemize}
-\end{itemize}
-\subsubsection{Other tools and hardware (?)}
-\begin{itemize}
-\item read assembly once in a while 
-\item version control software for backtracking
-\item used software versions and hardware
-
-
-
-\end{itemize}
-\subsection{Algorithm 1: geolat}
-\subsection{Algorithm 2: aml}
-\subsection{Algorithm 3: vble\_opt}
+\subsubsection{Optimizations}
+\subsection{Algorithm II: geolat}
+\subsection{Algorithm III: vble\_opt}
 \subsection{Framework}
 --> movntps yyx
