@@ -16,8 +16,8 @@
 \usepackage[perpage]{footmisc}
 \usepackage{graphicx} 
 \usepackage[page,titletoc]{appendix}
-%\usepackage{wrapfig}
-
+\usepackage{color}
+\usepackage{caption}
 \usepackage{hyperref}
 \usepackage{breakurl}
 
@@ -43,23 +43,64 @@
 % List of Listings
 \renewcommand*{\lstlistlistingname}{List of Listings}
 
+% Pimp my listings environment.
+% Credits go to stackoverflow:
+% http://stackoverflow.com/questions/741985/latex-source-code-listing-like-in-professional-books
+\lstset{
+         basicstyle=\footnotesize\ttfamily, % Standardschrift
+         numberstyle=\tiny,          % Stil der Zeilennummern
+         numbers=left,
+         stepnumber=1,
+         numbersep=7pt,              % Abstand der Nummern zum Text
+         tabsize=2,                  % Groesse von Tabs
+         extendedchars=true,         %
+         breaklines=true,            % Zeilen werden Umgebrochen       
+         stringstyle=\color{white}\ttfamily, % Farbe der String
+         showspaces=false,           % Leerzeichen anzeigen ?
+         showtabs=false,             % Tabs anzeigen ?
+         %frame=b,                   % Linie unten
+         xleftmargin=17pt,
+         framexleftmargin=17pt,
+         framexrightmargin=5pt,
+         framexbottommargin=4pt,
+         showstringspaces=false      % Leerzeichen in Strings anzeigen ?      
+ }
+
+% Pimp my captions.
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf}}
+%\DeclareCaptionFormat{figure}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
+%\captionsetup[figure]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,footnotesize}}
+%\DeclareCaptionFormat{table}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\textwidth}{\hspace{15pt}#1#2#3}}}
+%\captionsetup[table]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,footnotesize}}
+
 % Listing environment for C
-\lstnewenvironment{code}[1][]%
+\lstnewenvironment{code}[1][]
   {\minipage{\linewidth} 
-   \lstset{language=C,basicstyle=\ttfamily\footnotesize,numbers=left,stepnumber=1,numberstyle=\tiny,#1}}
+   \lstset{language=C,basicstyle=\ttfamily\footnotesize,#1}}
   {\endminipage}
 
 % Listing environment for Assembler
-\lstnewenvironment{assembler}[1][]%
+\lstnewenvironment{assembler}[1][]
   {\minipage{\linewidth}
-   \lstset{language=[x86masm]Assembler,basicstyle=\ttfamily\footnotesize,numbers=left,stepnumber=1,numberstyle=\tiny,#1}}
+   \lstset{language=[x86masm]Assembler,basicstyle=\ttfamily\footnotesize,#1}}
   {\endminipage}
 
 % Listing environment for bash
-\lstnewenvironment{shell}[1][]%
+\lstnewenvironment{shell}[1][]
   {\minipage{\linewidth}
    \lstset{language=bash,basicstyle=\ttfamily\footnotesize,#1}}
   {\endminipage}
+
+% Optimization environment
+\newcommand{\optimization}[4]{
+	\minipage{\linewidth}
+	\lstinputlisting[belowskip=0.3pt,caption=#3,nolol=true,language=C,basicstyle=\tiny,label=#4]{#1}
+  \hspace{\fill}\rule{0.7\linewidth}{.1pt}\hspace{\fill}
+	\lstinputlisting[aboveskip=1pt,language=C,basicstyle=\small]{#2}
+	\endminipage
+}
 
 % Titel and author 
 \title{\includegraphics[width=1.0\textwidth]{img/fulogo}\\[1.5cm]
