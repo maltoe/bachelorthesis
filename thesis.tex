@@ -9,17 +9,17 @@
 % package for inline figures not contained in debian
 %\usepackage{floatflt}
 
-\usepackage{fancyhdr}
-\usepackage{fancyref}
-\usepackage{listings}
-\usepackage{booktabs}
-\usepackage[perpage]{footmisc}
-\usepackage{graphicx} 
-\usepackage[page,titletoc]{appendix}
-\usepackage{color}
-\usepackage{caption}
-\usepackage[colorlinks=false, pdfborder={0 0 0}]{hyperref}
-\usepackage{breakurl}
+\usepackage{fancyhdr} % For header and footer format
+%\usepackage{fancyref} % For fancy references
+\usepackage{listings} % For code listings
+\usepackage{booktabs} % For tables
+\usepackage[perpage,bottom]{footmisc} % Footnote configuration
+\usepackage{graphicx} % includegraphics
+\usepackage[page,titletoc]{appendix} % appendix in toc
+\usepackage{color} % for colors, not sure if I truly need it anymore
+\usepackage{caption} % For nicer listing captions
+\usepackage[colorlinks=false, pdfborder={0 0 0}]{hyperref} % For links
+\usepackage{breakurl} % break those DAMN urls
 
 % Header and Footer Style
 \pagestyle{fancy}
@@ -156,7 +156,7 @@
 \bibliographystyle{alpha}
 \bibliography{thesis}
 
-\clearpage
+%\clearpage
 
 \listoffigures
 \addcontentsline{toc}{section}{Lists of Figures, Tables, and Listings}
