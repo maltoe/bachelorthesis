@@ -75,9 +75,14 @@ Any remaining anchors are processed in the same way in the final refinement step
 To calculate the said movement, the authors state it would be necessary to differentiate whether the current point is located on the inside or on the outside of the anchor's circle and treat these cases differently. However, I could not spot any reason why this method would be advantageous over using simple vector mathematics\footnote{\input{parts/04a_footnote_on_vector_mathematics}}. Still, as algorithmic optimization was not part of my assignment, the optimized code presented in the following corresponds to the author's original algorithm description.
 
 \subsubsection{Optimizations}
-%blblabla \ref{teeest}.
+Since the AML implementation \ref{circles}, scalar can be found in appendix \ref{scalarcircles}. awdinawdoinawdoinawdoianwdoiafdoifoalifnaowidnawidn
+soifnsovinsvoinv
+aifnspfinsvnsovin
+AML consists of three steps: \emph{intersection and elimination}, \emph{first estimation}, and \emph{refinement}. At the beginning of step 1, two intersecting anchor circles are chosen randomly. If these circles intersect at exactly one point, that point is picked for step 2. In case of two circle intersections, one of them needs to be eliminated, which is the one that has the larger distance to the circle of a third anchor. Afterwards, a first estimation of the position is obtained by moving the intersection point to the middle of the line segment connecting it with the third anchor's circle (i.e. with the closest point on that circle). 
+Any remaining anchors are processed in the same way in the final refinement step: For each anchor, the current location estimation is moved to the middle of the shortest line segment connecting it with the anchor's circle. Refer to the paper for a much better and more graphical explanation of the algorithm.
+seofinsoinvoin
 
-%\optimization{code/a.c}{code/b.c}{caption}{teeest}
+\codefile{Calculating circle intersections with SSE}{circles}{code/circles.c}
 
 \subsection{Algorithm II: Geolateration}
 \subsection{Algorithm III: Optimized Voting Based Location Estimation}

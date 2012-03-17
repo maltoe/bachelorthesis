@@ -41,11 +41,8 @@ int main() {
 
     // Allocate 64 MB of memory aligned to a cache line.
     float *arr;
-    int res = posix_memalign((void**) &arr, CACHE_LINE, 
-                             length * sizeof(float));
-    if(res != 0)
-        perror("Could not allocate memory.\n");
-
+    posix_memalign((void**) &arr, CACHE_LINE, 
+                   length * sizeof(float));
     // Execute memset once to make sure the memory is allocated.
     memset1(arr, length, 0.0f);
 

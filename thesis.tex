@@ -55,7 +55,6 @@
          tabsize=2,                  % Groesse von Tabs
          extendedchars=true,         %
          breaklines=true,            % Zeilen werden Umgebrochen       
-         stringstyle=\color{white}\ttfamily, % Farbe der String
          showspaces=false,           % Leerzeichen anzeigen ?
          showtabs=false,             % Tabs anzeigen ?
          %frame=b,                   % Linie unten
@@ -78,27 +77,34 @@
 % Listing environment for C
 \lstnewenvironment{code}[1][]
   {\minipage{\linewidth} 
-   \lstset{language=C,basicstyle=\ttfamily\footnotesize,#1}}
+   \lstset{language=C,#1}}
   {\endminipage}
 
 % Listing environment for Assembler
 \lstnewenvironment{assembler}[1][]
   {\minipage{\linewidth}
-   \lstset{language=[x86masm]Assembler,basicstyle=\ttfamily\footnotesize,#1}}
+   \lstset{language=[x86masm]Assembler,#1}}
   {\endminipage}
 
 % Listing environment for bash
 \lstnewenvironment{shell}[1][]
   {\minipage{\linewidth}
-   \lstset{language=bash,basicstyle=\ttfamily\footnotesize,#1}}
+   \lstset{language=bash,#1}}
   {\endminipage}
+
+% inputlisting in minipage for C
+\newcommand{\codefile}[3]{
+  \minipage{\linewidth}
+  \lstinputlisting[language=C,caption={#1},label=#2]{#3}
+  \endminipage
+}
 
 % Optimization environment
 \newcommand{\optimization}[4]{
 	\minipage{\linewidth}
 	\lstinputlisting[belowskip=0.3pt,caption=#3,nolol=true,language=C,basicstyle=\tiny,label=#4]{#1}
   \hspace{\fill}\rule{0.7\linewidth}{.1pt}\hspace{\fill}
-	\lstinputlisting[aboveskip=1pt,language=C,basicstyle=\small]{#2}
+	\lstinputlisting[aboveskip=1pt,language=C]{#2}
 	\endminipage
 }
 
@@ -162,8 +168,10 @@
 \begin{appendices}
 \section{Three \texttt{memset} implementations}
 \label{memset_code}
-% TODO hide from list of listings
-\lstinputlisting[nolol=true,language=C,basicstyle=\small]{code/memset.c}
+\lstinputlisting[nolol=true,language=C]{code/memset.c}
+\section{Original implementation of \texttt{circle\_get\_intersection}}
+\label{scalarcircles}
+\lstinputlisting[nolol=true,language=C]{code/scalarcircles.c}
 \end{appendices}
 
 \end{document}
