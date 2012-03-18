@@ -90,7 +90,7 @@ The algorithm is continued in listing~\ref{amlpart2} with a scalar code section 
 
 \codefile{Preparing refinement anchors}{amlpart2}{code/amlpart2.c}
 
-The first step of AML is concluded by eliminating one of the possibly two circle intersections. Since intersecting in two points is most probably the case for all vector elements, this is again implemented using vector operations and blending, as shown in listing~\ref{amlpart3}. Lines 3--5 offer a different method of computing the absolute value of 4 packed floats, this time using a logical \texttt{andnot} operation with a vector that has only the sign bits of all floats set to 1. Compare to line 12 in listing~\ref{circles} for another method. Vector \texttt{emask} indicates whether the vectors produced two intersections and, if so, which one is closer to the circle of a third anchor circle. Depending on this mask the applicable intersection point is blended into the \texttt{p\_isectx} and \texttt{p\_isecty} vectors, which are used as the starting point for refinements in the succeeding steps. As these variables are later returned as the results of the algorithm, lines 11--13 make sure that they contain \texttt{NAN} (i.e., no result) in case the initial \emph{intersection} step could not find two suitable anchor circles. All following calculations will leave these \texttt{NAN} values unchanged.
+The first step of AML is concluded by eliminating one of the possibly two circle intersections. Since intersecting in two points is most probably the case for all vector elements, this is again implemented using vector operations and blending, as shown in listing~\ref{amlpart3}. Lines 3--5 offer a different method of computing the absolute value of 4 packed floats, this time using a logical \texttt{andnot} operation with a vector that has only the sign bits of all floats set to 1. Compare to line 12 in listing~\ref{circles} for another method. Vector \texttt{emask} indicates whether the vectors produced two intersections and, if so, which one is closer to the circle of a third anchor circle. Depending on this mask the applicable intersection point is blended into the \texttt{p\_isectx} and \texttt{p\_isecty} vectors, which are used as the starting point for refinements in the succeeding steps. As these variables are later returned as the results of the algorithm, lines 11--13 make sure that they contain \texttt{NAN} (i.e., no result) in case the initial \emph{intersection} step could not find two suitable anchor circles. All subsequent calculations will leave these \texttt{NAN} values unchanged.
 
 \codefile{\emph{Elimination} step of AML}{amlpart3}{code/amlpart3.c}
 
@@ -98,9 +98,7 @@ The final steps of AML, \emph{first estimation} and \emph{refinement}, are ident
 
 \codefile{\emph{First estimation} and \emph{refinement} steps of AML}{amlpart4}{code/amlpart4.c}
 
-\subsubsection{Evaluation}
-
 \subsection{Algorithm II: Geolateration}
 \subsection{Algorithm III: Optimized Voting Based Location Estimation}
 \subsection{Framework}
---> movntps yyx
+--> movntps? maybe
