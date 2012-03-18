@@ -9,8 +9,7 @@ circle_get_intersection_v (VECTOR p1x, VECTOR p1y, VECTOR p2x, VECTOR p2y, VECTO
     // Mark not intersecting circles
     VECTOR retval = VECTOR_AND(one, VECTOR_CMPGE(d, VECTOR_ZERO()));
     retval = VECTOR_AND(retval, VECTOR_CMPGE(r1 + r2, d));
-    retval = VECTOR_AND(retval, VECTOR_CMPGE(
-        d, VECTOR_MAX(r1 - r2, r2 - r1)));
+    retval = VECTOR_AND(retval, VECTOR_CMPGE(d, VECTOR_MAX(r1 - r2, r2 - r1)));
 
     VECTOR a =  (r1*r1 - r2*r2 + d*d) / (two * d);
     VECTOR v = r1*r1 - a*a;
