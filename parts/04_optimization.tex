@@ -142,23 +142,36 @@ The critical point is located in lines 6--7. Considering that the distance from 
 \codefile{Preliminary step of the implemented 1-median algorithm}{weiszfeld}{code/weiszfeld.c}
 
 \subsection{Algorithm III: Optimized Voting Based Location Estimation}
+Like Geolateration, \emph{Optimized Voting Based Location Estimation} (VBLE-OPT) is a novel algorithm that has not been published yet. Its functionality is similar to what Gupta et al. proposed in~\cite{gupta2009voting}. Both algorithms project a regular grid with a defined cell length onto the playing area and vote the cells depending on whether they intersect the anchor circles. Afterwards, the algorithms recursively reduce the size of the cells and repeat the voting procedure for all highest ranked cells, until a certain minimum grid size is reached. The essential difference lies in the way the voting on cells is performed: Whereas Gupta et al. voted all cells contained in the anchor circles, VBLE-OPT restricts the voted area to the circles' perimeter broadened by some error threshold factor. Besides, VBLE-OPT uses a different approach for the final position estimation.
 
-blablabla~\subref{fig:vble2} balbla
+\subsubsection{Functionality}
+As a preparative step, VBLE-OPT starts with the calculation of a minimum bounding rectangle that covers all anchors and their corresponding circles. For each anchor, the outer and inner \emph{candidate rings} are defined as circles around the anchor position that as their radii have the measured distance and this distance reduced by the error threshold, respectivly. The bounding rectangle is then divided into square cells with a side length that is initially defined as 40 per cent of the bounding rectangle's shorter side. the target cell length is defined as 5 per cent of the bounding rectangle's shorter side. The subsequent recursive main part of VBLE-OPT functions as follows:
+\begin{itemize}
+\item Iterating over the anchors, it first determines the outer test region of each anchor, which is the bounding box that completely covers the anchor's outer candidate ring, and the inner test region, which is defined by a number of cells that lie in the inner candidate ring but do not intersect it.
+\item It then tests all cells contained in the outer test region but not in the inner test region for whether they are intersected by one of the candidate rings. For this, the cells maximum and minimum distance to the anchor position is calculated and compared to the radius of the candidate rings.
+\item If the cell is touched by one of the candidate rings, its voting score is incremented. Along the way, the algorithm keeps track of the current maximum score as well as the bounding rectangle that covers all cells that have been voted that score.
+\item After all anchors have been processed, the bounding rectangle containing all highest-ranked cells is used as the playing area of the following iteration, with the cells' side length being halved.
+\end{itemize}
+When the grid has reached the desired granularity, the centers of the highest-scored cells are accumulated and their center of mass is returned as the position estimation. As an illustration of the voting process figure~\ref{fig:vbleexample} displays two iterations of VBLE-OPT. Here, the dashed circle line represents the measured distance, i.e., the outer candidate ring. 
 
 \begin{figure}[h]
 \begin{center}
-\subfigure[First step (section)]{
+\subfigure[First iteration (section)]{
 \includegraphics[width=0.4\textwidth]{img/vble.eps}
 \label{fig:vble}
 }
-\subfigure[Second step]{
+\subfigure[Second iteration]{
 \includegraphics[width=0.4\textwidth]{img/vble2.eps}
 \label{fig:vble2}
 }
-\label{fig:vbleexample}
-\caption{Illustration of an iteration of VBLE-OPT}
 \end{center}
+\caption{VBLE-OPT: Voting example}
+\label{fig:vbleexample}
 \end{figure}
 
-\subsection{Framework}
+\subsubsection{Optimizations}
+
+\paragraph{Sector determination}
+
+\subsection{Optimizing the engine}
 --> movntps? maybe
