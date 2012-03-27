@@ -132,6 +132,7 @@ Due to the many early-out conditionals in the various steps of Geo3, my attempts
 \codefile{Looking for 3 close points (SSE)}{geoclosecount}{code/closecount.c}
 
 \paragraph{Step 3: Minimum perimeter triangle.} Step 3 also profitted greatly by the distance precalculation, as in order to get the triangle perimeters the original implementation computed the distances repeatedly for each possible triangle. Though, the search for the minimum perimeter triangle remains a major bottleneck in the optimized implementation. Theoretically, the algorithmic approach has a asymptotic complexity of $O(n^{3})$, since it has to process all possible 3-combinations of a set of points. Yet in practise, the implementation uses 3 nested loops with ``staggered'' initial values, i.e. the first loop starts at \texttt{i = 0}, the second loop at \texttt{j = i + 1} and so on, which, when applied to a maximum total of 6 points, results in at most 120 iterations, as compared to the theoretical maximum of $6^{3} = 216$. Trying to vectorize these loops and thus trying to access the intersection point arrays in a more sequential way would lead to the total number of tests growing closer to that maximum. Additionally, vectorization would require a lot of vector wrapping and unwrapping and data shuffling operations that will impose a significant performance overhead. Put another way, algorithms which iterate over $k$-combinations of a set of $n$ things will hardly benefit from vectorization when $n$ is small.
+
 In short, vectorization was not an option for Geolateration's step 3. Some speed up could be achieved by vectorizing the \texttt{circle\_point\_in\_circles} function which determines whether a point lies in all circles of a given set and additionally moving this calculation out of the loop. Still, this part will continue to be a major time-consumer in Geo3. 
 
 \paragraph{Step 5: Computing the geometric median using Weiszfeld's algorithm.} The final step of Geolateration involves calculating the geometric median of one or both of the two triangles' vertices. The geometric median (also known as Fermat-Weber point or 1-median) of a set of points is defined as the point for which the sum of the distances between this point and the points in the set becomes minimal. Since there exists no simple formula to calculate the geometric median, the authors implemented an iterative approximation approach known as Weiszfeld's algorithm~\cite{weiszfeld2009minimum}. I was able to improve the performance by deploying an SSE-enhanced version of this algorithm for up to 4 points\footnote{It is actually possible to arithmetically construct the geometric median of a triangle, which is also referred to as the \emph{Fermat point}. Since the optimized geometric median function is used exclusively for triangles in Geo3, it should probably rather have been replaced by another algorithm. I was not aware of this fact when I optimized Geo3.}, which is only used when the median of only one of the triangles needs to be calculated. For the statistically rare case when the median of two triangles should be calculated, it would be possible to translate the optimized implementation to AVX instructions, although I did not put this plan into practise. However, using SSE instructions for the two triangle case seemed inappropriate as it would require either twice as many instructions or a multitude of shuffling operations, similarly to the distance precalculation code described above. With regards to SSE programming techniques, the initial step of the algorithm is especially noteworthy, which is displayed in Listing~\ref{weiszfeld}. 
@@ -179,43 +180,19 @@ As a preparative step, VBLE-OPT starts with the calculation of a minimum boundin
 
 When the grid has reached the desired granularity, the centers of the highest-scored cells are accumulated and their center of mass is returned as the position estimation. For reference, the basic outline of the algorithm is shown in Listing~\ref{vbleopt_outline}.
 
-\begin{code}[caption={Outline of the VBLE-OPT algorithm},label=vbleopt_outline]
-while (grid_size > min_grid_size) {
-
-	// Initialize voting array.
-	// Set all cells' score to zero.
-
-	for(int anchor = 0; anchor < count; anchor++) {
-
-		// Calculate outer and inner test regions
-		// (xMin, xMax, yMin, yMax)
-
-		for(int x = xMin; x < xMax; x++) {
-			for(int y = yMin; y < yMax; y++) {
-
-				// Skip cell if it is contained in inner test region.
-
-				// Determine sector of anchor relative to cell.
-
-				// Calculate minimum and maximum distance between
-				// the anchor and the cell's boundary.
-
-				// Using these distances, test whether candidate ring
-				// overlaps with cell. If so, increase the current cell's
-				// score in the voting array.
-			}
-		}
-	}
-}
-
-// Return center of mass of highest-ranked cells.
-\end{code}
+\codefile{Outline of the VBLE-OPT algorithm}{vbleopt_outline}{code/vble_outline.c}
 
 \subsubsection{Optimizations}
-Despite its apparent simplicity, the VBLE-OPT algorithm was very difficult to optimize due to its many code paths and irregular performing. For example, in the algorithm's inner two loops, which iterate over the cells to be voted on by their x- and y-coordinate, the loop counters are bounded by the calculated outer test region. Additionally, the inner-most loop may be cancelled by a \texttt{break} statement in case the current cell is covered by the inner test region. It is therefore hardly possible to know the number of iterations of these loops for a particular anchor beforehand, and it is also doubtful that this number is similar over multiple runs of the algorithm (i.e., multiple distance measurements for the same anchor). As a result, although most of the loop body can be vectorized easily, a number of blacklists need to be maintained in order to reflect the varying number of loop iterations.
+Despite its apparent simplicity, the VBLE-OPT algorithm was difficult to optimize due to its many code paths and irregular performing. For example, in the algorithm's inner two loops, which iterate over the cells to be voted on by their x- and y-coordinate, the loop counters are bounded by the calculated outer test region. Additionally, the inner-most loop may be cancelled by a \texttt{break} statement in case the current cell is covered by the inner test region. It is therefore hardly possible to know the number of iterations of these loops for a particular anchor beforehand, and it is also doubtful that this number is similar over multiple runs of the algorithm (i.e., multiple distance measurements for the same anchor). As a result, although most of the loop body can be vectorized easily, a number of blacklists need to be maintained in order to reflect the varying number of loop iterations.
 
-\paragraph{Vectorizing the whole implementation.} 
+\paragraph{Complete vectorization.} 
+These blacklists indicate whether a vector element (i.e., a run of the algorithm) has already passed the loop limits, in other words, whether its whole test region has already been processed. Fortunately, since the main portion of code contained in the loop body has no outside effects, the blacklists need to be examined only before updating the voting scores. My first attempt at optimizing VBLE-OPT consisted of a major rewrite of the algorithm that targeted at vectorizing it as a whole. I used SSE4 integer intrinsics to manipulate the loop counters in parallel. As a consequence, this prevents the implementation to make use of the AVX unit of recent processors, as AVX does not include integer instructions until now. Listing~\ref{vble_vectorized} displays an extract from the vectorized implementation of VBLE-OPT.
 
+\codefile{Simplified code of the vectorized implementation of VBLE-OPT}{vble_vectorized}{code/vble_vectorized.c}
+
+Line 7 shows the creation of the first blacklist, which masks vector elements for which the loop counter \texttt{j} has already passed the corresponding \texttt{xMax} limit. The \texttt{\_mm\_cvtepi32\_ps} instruction, which converts 4 packed integer values stored in an \texttt{xmm} register into 4 packed floats, fills the gap for the integer ``greater or equal'' comparison instruction that is still missing in SSE4. Lines 23--33 mark the voting procedure of VBLE-OPT: First, the array indices of the current cells are calculated using vector operations such as \texttt{\_mm\_mullo\_epi32}, which multiplies two \texttt{xmm} registers filled with 4 signed integers. Based on the calculated minimum and maximum distances and the candidate ring (\texttt{anchor[i].ri} and \texttt{anchor[i].ro}), it is then decided which of the current cells should be voted for (l. 27). In line 28, the voting score increment of these cells is set to 1, but only if they were not blacklisted before in which case it is set to zero. Finally, the score of each cell is updated. The latter also constitutes one of the major bottlenecks of the implementation, since the \texttt{scores} array needs to be accessed in a nonparallel and totally random way.
+
+Not shown in Listing~\ref{vble_vectorized} is a lengthy code section that determines the anchor's sector relative to the cells, which is necessary for calculating the anchor's minimum and maximum distance to the cell boundary (refer to Figure~\ref{fig:vble_sector}). The original implementation contained a long sequence of conditional statements, that determined the sector by comparing the anchor's coordinates to the corner points of the current cell. In the SSE implementation, I replaced these conditionals with a series of \texttt{blendvps} instructions, that blended the distances to the \texttt{dMax} and \texttt{dMin} vectors based on the results of a large number of vector comparisons. Additionally, since the original code left the sector determination once the proper sector was found (using a chain of \texttt{if-else-if-...} statements), it was necessary to maintain a bitmask that indicated which vector elements have been successfully processed and incorporate this bitmask into the blending instructions. In sum, the vectorized implementation unconditionally calculated every possible distance value, used plenty of comparisons and \texttt{blendvps} instructions, and required additional logical operations for maintaining the bitmask. By contrast, the scalar implementation required only a minimum number of arithmetic operations and up to 9 comparisons, in addition to a conditional jump. In the end, my initial approach at vectorizing VBLE-OPT turned out to perform about 1.5 times slower than the original implementation.
 
 \begin{itemize}
 \item each of them needs a blacklist
@@ -225,7 +202,18 @@ Despite its apparent simplicity, the VBLE-OPT algorithm was very difficult to op
 \end{itemize}
 
 \paragraph{Restructuring anchor data.}
+As a consequence of this initial failure, I started over with a clean version of the original code, this time trying to optimize smaller, isolated parts of the algorithm. The implementation, showing much potential for code restructuring and better memory management, was benefitted by the following measures:
+\begin{itemize}
+\item The voting array was (probably as a reminiscence to C89, where arrays of dynamic size could not be allocated on the stack) dynamically allocated using \texttt{malloc}. Changing this to stack allocation measurably improved performance.
+\item Several constant values were repeatedly calculated in the inner loops. I modified the implementation to precalculate these values (e.g., the candidate rings of the anchors and the inner test region) in advance.
+\item To test whether a cell is overlapped by a candidate ring, the original implementation used euclidean distances. In order to save several square root instructions, I changed this to use squared euclidean distances instead.
+\item Remarkably as an example of the \emph{locality of reference} principle, I introduced a \texttt{anchor_info_t} struct that contains the coordinates of an anchor as well as its candidate ring and inner test region, and thus keeps these values close together in memory. Since the anchors are processed iterativly, this considerably reduced the number of cache misses in the inner loops.
+\item For final position estimation, the original implementation calculated the center of mass of the centers of the highest-ranked cells. In order to calculate these center positions, it added half of the grid cells' side length to the cells' coordinates, which point to the top-left corner of the cells. I deferred this ``centering'' until after the center of mass has been calculated, thereby saving a number of addition operations.
+\end{itemize}
+These combined measures led to a small improvement of the overall performance of the algorithm. However, the breakthrough results I had expected failed to materialize.
+
 \paragraph{Sector determination.}
+
 
 \subsection{Optimizing the engine}
 --> movntps? maybe
