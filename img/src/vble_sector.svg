@@ -14,10 +14,10 @@
 </defs>
 
 
-    <circle cx="-50" cy="50" r="400" fill="none" stroke="black" stroke-width="60.0" stroke-opacity="0.05" />
-    <circle cx="-50" cy="50" r="430" fill="none" stroke="black" style="stroke-dasharray:4,2;" stroke-width="1.5" stroke-opacity="0.3" />
-    <circle cx="-50" cy="50" r="370" fill="none" stroke="black" stroke-width="2" stroke-opacity="0.3" />
-    <circle cx="-50" cy="50" r="5" fill="black" />
+    <circle cx="-200" cy="50" r="300" fill="none" stroke="black" stroke-width="60.0" stroke-opacity="0.05" />
+    <circle cx="-200" cy="50" r="330" fill="none" stroke="black" style="stroke-dasharray:4,2;" stroke-width="1.5" stroke-opacity="0.3" />
+    <circle cx="-200" cy="50" r="270" fill="none" stroke="black" stroke-width="2" stroke-opacity="0.3" />
+    <circle cx="-200" cy="50" r="5" fill="black" />
     
     <g id="sectors" stroke="blue" style="stroke-dasharray:4,2;" stroke-width="1.75">
         <line x1="-1000" y1="-300" x2="1000" y2="-300" />
@@ -39,8 +39,8 @@
     </g>
     
     <g id="distances" stroke="black" stroke-width="2">
-        <line x1="-50" y1="50" x2 ="-289" y2="-285" marker-end="url(#Arrowhead)" />
-        <line x1="-50" y1="50" x2 ="-142" y2="-135" marker-end="url(#Arrowhead)" />
+        <line x1="-200" y1="50" x2 ="-291" y2="-278" marker-end="url(#Arrowhead)" />
+        <line x1="-200" y1="50" x2 ="-200" y2="-127" marker-end="url(#Arrowhead)" />
     </g>
 <!--
 
