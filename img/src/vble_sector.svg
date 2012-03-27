@@ -14,9 +14,9 @@
 </defs>
 
 
-    <circle cx="-200" cy="50" r="300" fill="none" stroke="black" stroke-width="60.0" stroke-opacity="0.05" />
-    <circle cx="-200" cy="50" r="330" fill="none" stroke="black" style="stroke-dasharray:4,2;" stroke-width="1.5" stroke-opacity="0.3" />
-    <circle cx="-200" cy="50" r="270" fill="none" stroke="black" stroke-width="2" stroke-opacity="0.3" />
+    <circle cx="-200" cy="50" r="300" fill="none" stroke="black" stroke-width="60.0" stroke-opacity="0.15" />
+    <circle cx="-200" cy="50" r="330" fill="none" stroke="black" style="stroke-dasharray:4,2;" stroke-width="1.5" />
+    <circle cx="-200" cy="50" r="270" fill="none" stroke="black" stroke-width="2" />
     <circle cx="-200" cy="50" r="5" fill="black" />
     
     <g id="sectors" stroke="blue" style="stroke-dasharray:4,2;" stroke-width="1.75">
