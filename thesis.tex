@@ -1,3 +1,7 @@
+% FIRST define the thesis' meta information, as it is needed several times.
+\newcommand\thesistitle{Performance optimization of real-world algorithms on modern processor architectures}
+\newcommand\thesisauthor{Malte Rohde}
+
 \documentclass[a4paper,10pt]{article}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -14,12 +18,25 @@
 \usepackage{listings} % For code listings
 \usepackage{booktabs} % For tables
 \usepackage[perpage,bottom]{footmisc} % Footnote configuration
-\usepackage{graphicx} % includegraphics
-\usepackage[page,titletoc]{appendix} % appendix in toc
-\usepackage{color} % for colors, not sure if I truly need it anymore
+\usepackage{graphicx} % For includegraphics
+\usepackage[page,titletoc]{appendix} % For appendix in toc
+\usepackage{color} % For colors, not sure if I truly need it anymore
 \usepackage{caption} % For nicer listing captions
-\usepackage[colorlinks=false, pdfborder={0 0 0}]{hyperref} % For links
-\usepackage{breakurl} % break those DAMN urls
+\usepackage{lipsum} % For blindtext (use \lipsum)
+
+% The hyperref package is used to put hyperlinks on citations and the like.
+% It additionally can manipulate PDF meta information.
+\usepackage[
+colorlinks=false, % don't color links
+pdfborder={0 0 0}, % don't put stupid rectangles around links
+pdftitle={\thesistitle},
+pdfsubject={Bachelor thesis on SSE-based optimization of real-world algorithms},
+pdfauthor={\thesisauthor},
+pdfkeywords={performance optimization, SSE, SIMD, real-world algorithms}
+]{hyperref}
+
+% Break those damn URLs. This needs to be included after hyperref.
+\usepackage{breakurl}
 \usepackage{subfigure} % For placing figures next to each other
 
 % Header and Footer Style
@@ -113,9 +130,9 @@
 
 % Titel and author 
 \title{\includegraphics[width=1.0\textwidth]{img/fulogo}\\[1.5cm]
-{\normalsize Bachelor thesis at the Computer Science Institute of the Freie Universität Berlin\\ Computer Systems \& Telematics workgroup}\\[6ex] {\Huge Performance optimization of real-world algorithms on modern processor architectures\\[1cm]- DRAFT -}\\[6ex]}
+{\normalsize Bachelor thesis at the Computer Science Institute of the Freie Universität Berlin\\ Computer Systems \& Telematics workgroup}\\[6ex] {\Huge \thesistitle\\[1cm]- DRAFT -}\\[6ex]}
 
-\author{Malte Rohde\\
+\author{\thesisauthor\\
 %{\normalsize Immatriculation Number: 4287463 }\\
 {\normalsize \mailto{malte.rohde@inf.fu-berlin.de}}\\\\
 {\normalsize \textbf{Supervised by}: Prof. Dr. Marcel Kyas and Dipl.-Inform. Heiko Will}}
@@ -180,9 +197,9 @@
 \section{AVX implementation of the Geo3 distance precalculation}
 \label{geodistancesavx}
 \lstinputlisting[nolol=true,language=C]{code/distancesavx.c}
-\section{Convergence function from \emph{benchlat} benchmark script}
-\label{convergence}
-\lstinputlisting[nolol=true,language=Python]{code/converge.py}
+%\section{Convergence function from \emph{benchlat} benchmark script}
+%\label{convergence}
+%\lstinputlisting[nolol=true,language=Python]{code/converge.py}
 \end{appendices}
 
 \end{document}
