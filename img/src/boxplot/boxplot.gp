@@ -1,7 +1,6 @@
-#set terminal pngcairo enhanced font "arial,10" fontscale 1.0 size 800, 350 
+#set terminal pngcairo enhanced size 800, 350 
 #set output 'boxplot.png'
 
-#set term postscript eps enhanced color blacktext "Helvetica" 24
 set term postscript eps color blacktext "Helvetica" 10.5
 set output 'boxplot.eps'
 
