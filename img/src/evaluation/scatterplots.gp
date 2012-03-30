@@ -11,7 +11,7 @@ set output
 
 # Note that we add some jitter to the aml data since we have so many duplicates.
 set output 'scatter_aml4.tmp.eps'
-plot 'aml4.dat' using ($2+rand(0)*0.004):($3+rand(0)*0.004) title 'AML (4 anchors)', x/2.91 title 'calculated average speed-up' linestyle 2 
+plot 'aml4.dat' using ($2+rand(0)*0.004):($3+rand(0)*0.004) title 'AML (4 anchors)', x/3.34 title 'calculated average speed-up' linestyle 2 
 set output
 !sed -e 's|/DOCINFO pdfmark||' < scatter_aml4.tmp.eps > scatter_aml4.eps
 

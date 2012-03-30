@@ -24,7 +24,7 @@ set xtics norangelimit
 set xtics ("AML" 1.20000, "Geo3" 2.8, "VBLE-OPT" 4.4)
 #set ytics border in scale 1,0.25 norotate offset character 0, 0, 0 autojustify
 set ytics 1,0.25 nomirror autojustify
-set yrange [ 1.00000 : 3.5000 ] noreverse nowriteback
+set yrange [ 1.00000 : 4.000 ] noreverse nowriteback
 set ylabel "speed-up"
 
 set grid ytics
