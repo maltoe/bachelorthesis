@@ -23,6 +23,7 @@
 \usepackage{color} % For colors, not sure if I truly need it anymore
 \usepackage{caption} % For nicer listing captions
 \usepackage{lipsum} % For blindtext (use \lipsum)
+\usepackage{xspace} % For horizontal space.
 
 % The hyperref package is used to put hyperlinks on citations and the like.
 % It additionally can manipulate PDF meta information.
@@ -57,6 +58,10 @@ pdfkeywords={performance optimization, SSE, SIMD, real-world algorithms}
 \newcommand\parbig{\par\bigskip}
 \newcommand\parmed{\par\medskip}
 \newcommand{\mailto}[1]{\href{mailto:#1}{#1}}
+
+% Abbreviations get shorter horizontal space. Use only when there's no comma following!
+\newcommand{\eg}{\mbox{e.g.\ }\xspace}
+\newcommand{\ie}{\mbox{i.e.\ }\xspace}
 
 % List of Listings
 \renewcommand*{\lstlistlistingname}{List of Listings}
@@ -130,16 +135,14 @@ pdfkeywords={performance optimization, SSE, SIMD, real-world algorithms}
 
 % Titel and author 
 \title{\includegraphics[width=1.0\textwidth]{img/fulogo}\\[1.5cm]
-{\normalsize Bachelor thesis at the Computer Science Institute of the Freie Universität Berlin\\ Computer Systems \& Telematics workgroup}\\[6ex] {\Huge \thesistitle\\[1cm]- DRAFT -}\\[6ex]}
+{\normalsize Bachelor thesis at the Computer Science Institute of the Freie Universität Berlin\\ Computer Systems \& Telematics workgroup}\\[6ex] {\Huge \thesistitle\\[6ex]}}
 
 \author{\thesisauthor\\
 %{\normalsize Immatriculation Number: 4287463 }\\
 {\normalsize \mailto{malte.rohde@inf.fu-berlin.de}}\\\\
 {\normalsize \textbf{Supervised by}: Prof. Dr. Marcel Kyas and Dipl.-Inform. Heiko Will}}
 
-% Final version:
-%\date{\vspace*{3.5cm} \today{}}
-\date{\vspace*{1.0cm} \today{}}
+\date{\vspace*{2.5cm} \today{}}
 
 \begin{document}
 
