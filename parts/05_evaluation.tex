@@ -1,9 +1,9 @@
-\section{Evaluation}
+\subsection{Evaluation}
 \label{Evaluation}
 
 In the following, I will evaluate the outcome of my optimizational work. Using experimental benchmark data, I will discuss the impact of the optimizations on the three algorithms and reason about the influence of anchor positions on each algorithm's performance. I will also debate the statistical significance of these benchmarks.
 
-\subsection{Approach}
+\subsubsection{Approach}
 As mentioned in Section~\ref{benchmarking}, the following data has been collected using my custom-made \emph{benchlat} utility. For this final benchmark, the algorithms were executed 500 times each, using 3, 4, and 5 anchors for AML and VBLE-OPT, and only 3 anchors for Geo3, which simply discards additional anchors. Regarding the selection of anchor positions, I decided to mainly choose points close to distinct borders of the playing field, aiming at a near uniform distribution of the area of the shapes formed by the anchors, and at avoiding having a bias towards small, centered shapes that would arise from a uniform distribution of points. This can in general be considered more realistic for localization scenarios. Though, since the input parameters are discretized to integer simulation units by the engine, this constraint also resulted in a lower bound on the area of the anchor shape. For example, one minimal triangle would be formed by three points lying as close as possible to one border of the playing area without being colinear, for example, the points (1|0), (0|500), and (1|1000). This triangle still has an area of 500 square simulation units. However, I do not consider these (unlikely) minimum area shapes to be of major relevance for the speed-ups resulting from the optimization.
 
 For each set of anchors, the original implementation of each algorithm was executed as well, in order to obtain a reference runtime. Both the reference and the optimized runtimes were reduced by the constant overhead imposed by the engine itself, which is mainly composed by the time it takes the engine to calculate the real distances and to generate the random measuring errors. In order to estimate this overhead, I executed the \emph{const} algorithm shipped with LS$^{2}$, which does nothing but return the input parameters, a thousand times and calculated the average of the runtimes. The resulting average overhead is 0.06603 seconds. 
@@ -15,11 +15,9 @@ s_{i}& = \frac{t_{r,i}}{t_{o,i}} \\
 \texttt{average}& = \frac{1}{n} \cdot \sum_{i = 1}^n s_{i}
 \end{align}
 
-The benchmarks were run on a quad-core Intel Xeon E31245 CPU with a clock frequency of 3.30~GHz, which had access to a total of 8~GB main memory. Because availability of this system was temporally limited, the number of algorithm iterations for each position needed to be reduced to 40, though, as execution runtimes are linearly dependent on the number of iterations (refer to Section~\ref{ls2}, this does not compromise the significance of the benchmark results. The framework was configured to always use uniformly distributed errors. This, by contrast, limits the universality of the benchmark results to some degree. However, at the time of my coding it was the only error model implemented in LS$^{2}$.
+The benchmarks were run on a quad-core Intel Xeon E31245 CPU with a clock frequency of 3.30~GHz, which had access to a total of 8~GB main memory. Because availability of this system was temporally limited, the number of algorithm iterations for each position needed to be reduced to 40, though, as execution runtimes are linearly dependent on the number of iterations (refer to Section~\ref{ls2}, this does not compromise the significance of the benchmark results. The framework was configured to always use uniformly distributed errors. This, by contrast, limits the universality of the benchmark results to some degree. However, at the time of my coding it was the only error model implemented in LS$^{2}$. The application was compiled using the GNU compiler collection, version 4.6.3, with compiler optimization set to \texttt{-O3}.
 
-% const : 0.0660382897854
-
-\subsection{Discussion}
+\subsubsection{Discussion}
 To begin with, all benchmark runs have delivered a positive result, i.e., the performance of each algorithm has been improved no matter where the anchors were placed. Table~\ref{average_table} shows the average speed-up calculated over all benchmark runs for each algorithm for 3, 4, and 5 anchors, providing a convenient overview of how much the algorithms benefitted from the optimization. AML boasts the best results with an average speed-up of 2.7 to 3.0, followed by Geolateration and VBLE-OPT.
 
 \begin{table}[ht]
